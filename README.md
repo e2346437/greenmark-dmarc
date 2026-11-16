@@ -40,6 +40,7 @@ Copy `unraid/greenmark-dmarc.xml` to `/boot/config/plugins/dockerMan/templates-u
 | `OFFLINE` | `false` | Skip reverse DNS lookups |
 | `DATA_DIR` | `/data` | Where the database lives. Mount a volume here. |
 | `PORT` | `8080` | Web port inside the container |
+| `PUID` / `PGID` | `99` / `100` | User and group the app runs as. The data folder is given to this user at startup, so a folder created by root works. |
 
 ### Client names (optional)
 
