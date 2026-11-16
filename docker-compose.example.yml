@@ -1,0 +1,20 @@
+# Copy to docker-compose.yml, fill in the values, then: docker compose up -d
+services:
+  dmarc:
+    build: .
+    container_name: greenmark-dmarc
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: change-me
+      IMAP_HOST: mail.example.net
+      IMAP_PORT: "993"
+      IMAP_USER: dmarc@example.net
+      IMAP_PASSWORD: change-me
+      IMAP_FOLDER: INBOX
+      ARCHIVE_FOLDER: Archive
+      POLL_MINUTES: "30"

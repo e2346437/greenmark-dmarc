@@ -1,0 +1,3 @@
+<div class="periods">Last:
+{% for p in periods %}<a href="?days={{ p }}" class="{{ 'on' if p == days }}">{{ p }} days</a>{% endfor %}
+</div>

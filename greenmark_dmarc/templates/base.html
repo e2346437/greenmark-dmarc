@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}DMARC monitor{% endblock %}</title>
+<style>
+:root { --bg:#f7f7f5; --panel:#fff; --text:#1d1d1b; --muted:#6b6b66; --line:#e3e3de;
+        --good:#1f7a3a; --bad:#b3261e; --warn:#9a6700; --accent:#2457a6; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#151514; --panel:#1f1f1d; --text:#ececea; --muted:#a3a39d; --line:#33332f;
+          --good:#5cc27a; --bad:#ff7b72; --warn:#e3b341; --accent:#7aa7ff; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text);
+       font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+header { display:flex; align-items:center; gap:16px; padding:12px 16px; background:var(--panel);
+         border-bottom:1px solid var(--line); flex-wrap:wrap; }
+header a.brand { font-weight:600; color:var(--text); text-decoration:none; }
+header .spacer { flex:1; }
+main { max-width:1200px; margin:0 auto; padding:16px; }
+a { color:var(--accent); }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; margin-bottom:16px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+th { font-size:13px; color:var(--muted); font-weight:600; }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+tr.row-bad td { background:color-mix(in srgb, var(--bad) 8%, transparent); }
+.good { color:var(--good); } .bad { color:var(--bad); font-weight:600; } .warn { color:var(--warn); }
+.muted { color:var(--muted); }
+.pill { display:inline-block; padding:1px 8px; border-radius:999px; border:1px solid var(--line); font-size:13px; }
+.periods a { margin-right:8px; } .periods a.on { font-weight:700; text-decoration:none; color:var(--text); }
+.flash { background:color-mix(in srgb, var(--accent) 12%, var(--panel)); border:1px solid var(--line);
+         border-radius:8px; padding:10px 14px; margin-bottom:16px; }
+.error { background:color-mix(in srgb, var(--bad) 12%, var(--panel)); }
+form.inline { display:inline; }
+button, input[type=submit] { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line);
+         background:var(--panel); color:var(--text); cursor:pointer; }
+input[type=text], input[type=password] { font:inherit; padding:8px; border-radius:6px; border:1px solid var(--line);
+         background:var(--bg); color:var(--text); width:100%; }
+h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:0 0 12px; }
+</style>
+</head>
+<body>
+{% if session.get('user') %}
+<header>
+  <a class="brand" href="{{ url_for('index') }}">DMARC monitor</a>
+  <span class="spacer"></span>
+  <form class="inline" method="post" action="{{ url_for('logout') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}"><button>Log out</button>
+  </form>
+</header>
+{% endif %}
+<main>
+{% for message in get_flashed_messages() %}<div class="flash">{{ message }}</div>{% endfor %}
+{% block body %}{% endblock %}
+</main>
+</body>
+</html>

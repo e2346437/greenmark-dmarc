@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Log in · DMARC monitor{% endblock %}
+{% block body %}
+<div class="panel" style="max-width:360px;margin:60px auto;">
+  <h1>DMARC monitor</h1>
+  <p class="muted">Log in to continue.</p>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <p><label>Username<br><input type="text" name="username" autocomplete="username" required></label></p>
+    <p><label>Password<br><input type="password" name="password" autocomplete="current-password" required></label></p>
+    <button>Log in</button>
+  </form>
+</div>
+{% endblock %}
