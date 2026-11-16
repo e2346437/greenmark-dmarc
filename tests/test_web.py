@@ -75,3 +75,10 @@ def test_email_section_and_test_button(tmp_path, monkeypatch):
     assert sent == [(["info@example.org", "support@example.org"], "DMARC monitor test email")]
     r = c.post("/email/summary", data={"csrf": token}, follow_redirects=True)
     assert "Weekly summary sent" in r.get_data(as_text=True)
+
+
+def test_session_cookie_has_its_own_name(client):
+    r = _login(client)
+    cookies = r.headers.getlist("Set-Cookie")
+    assert any(c.startswith("greenmark_dmarc_session=") for c in cookies)
+    assert not any(c.startswith("session=") for c in cookies)

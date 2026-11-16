@@ -22,6 +22,9 @@ def create_app(settings: Settings, db: Database, poller=None) -> Flask:
     app.config.update(
         SECRET_KEY=settings.secret_key,
         MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES,
+        # Not Flask's default "session": cookies are shared across ports on the same host, so the
+        # default name would overwrite the login cookie of another web UI on that host (Unraid's, for one).
+        SESSION_COOKIE_NAME="greenmark_dmarc_session",
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
     )
