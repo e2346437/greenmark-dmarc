@@ -40,6 +40,36 @@ Copy `unraid/greenmark-dmarc.xml` to `/boot/config/plugins/dockerMan/templates-u
 | `OFFLINE` | `false` | Skip reverse DNS lookups |
 | `DATA_DIR` | `/data` | Where the database lives. Mount a volume here. |
 | `PORT` | `8080` | Web port inside the container |
+| `SMTP_HOST` | | Mail server for alerts and the weekly summary. Leave empty to turn email off. |
+| `SMTP_PORT` | `587` | SMTP port |
+| `SMTP_SECURITY` | `starttls` | `starttls`, `ssl` (port 465) or `none` |
+| `SMTP_USER` / `SMTP_PASSWORD` | the IMAP login | SMTP login. Defaults to `IMAP_USER` / `IMAP_PASSWORD`, so the report mailbox can send too. |
+| `SMTP_FROM` | `SMTP_USER` | From address |
+| `ALERT_TO` | | Where failure alerts go, for example a ticketing inbox. Comma-separated. |
+| `SUMMARY_TO` | | Where the weekly summary goes. Comma-separated. |
+| `SUMMARY_DAY` / `SUMMARY_HOUR` | `mon` / `7` | When the weekly summary is sent, in `TZ` |
+| `TZ` | `America/New_York` | Time zone for the summary schedule |
+| `ALERT_MIN_PASS_RATE` | `90` | Alert when a domain's DMARC pass rate is below this |
+| `ALERT_MIN_MESSAGES` | `20` | ...and it sent at least this many messages in the window |
+| `ALERT_WINDOW_DAYS` | `3` | Days of reports the alert checks look at |
+| `ALERT_MIN_SOURCE_MESSAGES` | `5` | Failed messages before a new sender counts as a problem |
+| `ALERT_STALE_HOURS` | `48` | Alert when no new report has arrived for this long |
+| `ALERT_POLL_FAILURES` | `2` | Alert after this many failed mailbox checks in a row |
+| `ALERT_REPEAT_DAYS` | `7` | Re-send an alert if the problem is still there after this many days. `0` turns reminders off. |
+| `OWN_CLIENT_NAME` | `Greenmark IT` | Client name used in the subject of alerts about the monitor itself |
+
+### Email alerts and weekly summary (optional)
+
+With `SMTP_HOST` and `ALERT_TO` set, the monitor emails one alert per problem, with the client name and domain in the subject, so each one can open a ticket. It checks after every mailbox poll for:
+
+- **Low pass rate:** a domain's DMARC pass rate over the last `ALERT_WINDOW_DAYS` days is below `ALERT_MIN_PASS_RATE`.
+- **New unauthorized senders:** a source that has never sent for the domain before is failing DMARC. Only checked once a domain has a week of history.
+- **Mailbox login failing:** the last `ALERT_POLL_FAILURES` mailbox checks failed.
+- **No reports:** nothing new has arrived for `ALERT_STALE_HOURS` hours.
+
+A problem that continues does not send again on every poll. It sends one email when it starts and a reminder every `ALERT_REPEAT_DAYS` days if it is still there. It is marked resolved after it has been gone for a day; if it comes back after that, it sends a new email. A failed send is retried on the next poll.
+
+With `SUMMARY_TO` set, a weekly summary goes out on `SUMMARY_DAY` at `SUMMARY_HOUR`: each domain's pass rate and the change from the week before, domains with no reports, open alerts and alerts resolved that week. The dashboard has buttons to send a test email and to send the summary now.
 
 ### Client names (optional)
 

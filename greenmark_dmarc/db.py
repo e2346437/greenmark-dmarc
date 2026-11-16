@@ -55,6 +55,20 @@ CREATE TABLE IF NOT EXISTS status (
     key   TEXT PRIMARY KEY,
     value TEXT
 );
+
+-- One row per alert issue, so an ongoing problem sends one email (one ticket), not one per poll.
+CREATE TABLE IF NOT EXISTS alerts (
+    key          TEXT PRIMARY KEY,
+    kind         TEXT NOT NULL,
+    domain       TEXT,
+    client       TEXT,
+    subject      TEXT NOT NULL,
+    details      TEXT,
+    first_seen   TEXT NOT NULL,
+    last_seen    TEXT NOT NULL,
+    last_sent    TEXT,
+    resolved_at  TEXT
+);
 """
 
 

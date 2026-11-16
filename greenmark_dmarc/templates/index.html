@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
 {% if status.get('last_error') %}<div class="flash error"><strong>Last check failed.</strong> {{ status['last_error'] }}</div>{% endif %}
+{% if status.get('last_email_error') %}<div class="flash error"><strong>Last email failed.</strong> {{ status['last_email_error'] }}</div>{% endif %}
+{% if open_alerts %}
+<div class="panel">
+  <h2>Open alerts</h2>
+  <ul>{% for a in open_alerts %}<li>{{ a.subject }} <span class="muted">since {{ a.first_seen[:16] }} UTC{% if not a.last_sent %}, email not sent yet{% endif %}</span></li>{% endfor %}</ul>
+</div>
+{% endif %}
 <div class="panel">
   <h1>Domains</h1>
   {% include "_periods.html" %}
@@ -48,5 +55,21 @@
     Last successful check: {{ status.get('last_poll_ok', 'never') }} UTC. {{ status.get('last_poll_message', '') }}<br>
     Stored: {{ totals.reports }} reports for {{ totals.domains }} domains.
   </p>
+  <h2>Email</h2>
+  {% if settings.email_enabled %}
+  <p class="muted">
+    Sending as {{ settings.smtp_from }} through {{ settings.smtp_host }}:{{ settings.smtp_port }}.<br>
+    Failure alerts to: {{ settings.alert_to | join(', ') or 'nobody (set ALERT_TO)' }}.<br>
+    Weekly summary to: {{ settings.summary_to | join(', ') or 'nobody (set SUMMARY_TO)' }}, {{ schedule }}. Last sent: {{ status.get('last_summary_sent', 'never') }} UTC.
+  </p>
+  <form class="inline" method="post" action="{{ url_for('email_test') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}"><button>Send test email</button>
+  </form>
+  <form class="inline" method="post" action="{{ url_for('email_summary') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}"><button {{ 'disabled' if not settings.summary_to }}>Send weekly summary now</button>
+  </form>
+  {% else %}
+  <p class="muted">Email is off. Set SMTP_HOST and SMTP_FROM (plus ALERT_TO and SUMMARY_TO) to get failure alerts and a weekly summary.</p>
+  {% endif %}
 </div>
 {% endblock %}

@@ -93,10 +93,28 @@ def run_once(db: Database, settings: Settings) -> None:
         db.set_status("last_poll_ok", utcnow())
         db.set_status("last_poll_message", message)
         db.set_status("last_error", "")
+        db.set_status("consecutive_failures", "0")
         log.info(message)
     except Exception as exc:
         log.exception("Poll failed")
         db.set_status("last_error", f"{utcnow()} UTC: {type(exc).__name__}: {exc}")
+        try:
+            failures = int(db.get_status().get("consecutive_failures") or 0) + 1
+        except ValueError:
+            failures = 1
+        db.set_status("consecutive_failures", str(failures))
+    run_email(db, settings)
+
+
+def run_email(db: Database, settings: Settings) -> None:
+    """Send any new alerts and, when due, the weekly summary. Never lets an email problem stop polling."""
+    from . import alerts
+
+    try:
+        alerts.process_alerts(db, settings)
+        alerts.maybe_send_summary(db, settings)
+    except Exception:
+        log.exception("Alert check failed")
 
 
 class Poller(threading.Thread):
