@@ -22,4 +22,15 @@
   <Config Name="IMAP folder" Target="IMAP_FOLDER" Default="INBOX" Description="Folder to read reports from" Type="Variable" Display="advanced" Required="false" Mask="false">INBOX</Config>
   <Config Name="Archive folder" Target="ARCHIVE_FOLDER" Default="Archive" Description="Processed report emails are moved here" Type="Variable" Display="advanced" Required="false" Mask="false">Archive</Config>
   <Config Name="Poll minutes" Target="POLL_MINUTES" Default="30" Description="How often to check the mailbox" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
+  <Config Name="SMTP host" Target="SMTP_HOST" Default="" Description="Mail server for alerts and the weekly summary. Empty turns email off." Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="SMTP port" Target="SMTP_PORT" Default="587" Description="587 with STARTTLS, or 465 with SSL" Type="Variable" Display="always" Required="false" Mask="false">587</Config>
+  <Config Name="SMTP security" Target="SMTP_SECURITY" Default="starttls" Description="starttls, ssl or none" Type="Variable" Display="advanced" Required="false" Mask="false">starttls</Config>
+  <Config Name="SMTP user" Target="SMTP_USER" Default="" Description="SMTP login. Empty uses the IMAP user." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="SMTP password" Target="SMTP_PASSWORD" Default="" Description="SMTP password. Empty uses the IMAP password." Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="From address" Target="SMTP_FROM" Default="" Description="Empty uses the SMTP or IMAP user" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Alert email to" Target="ALERT_TO" Default="" Description="Failure alerts, one email per problem (for example your ticketing inbox)" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Weekly summary to" Target="SUMMARY_TO" Default="" Description="Weekly summary recipients" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Summary day" Target="SUMMARY_DAY" Default="mon" Description="Day the weekly summary is sent" Type="Variable" Display="advanced" Required="false" Mask="false">mon</Config>
+  <Config Name="Summary hour" Target="SUMMARY_HOUR" Default="7" Description="Hour (0-23) the weekly summary is sent" Type="Variable" Display="advanced" Required="false" Mask="false">7</Config>
+  <Config Name="Time zone" Target="TZ" Default="America/New_York" Description="Time zone for the summary schedule" Type="Variable" Display="advanced" Required="false" Mask="false">America/New_York</Config>
 </Container>

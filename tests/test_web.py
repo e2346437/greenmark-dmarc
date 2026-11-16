@@ -50,3 +50,28 @@ def test_login_upload_and_view(client):
 def test_post_without_csrf_rejected(client):
     _login(client)
     assert client.post("/upload", data={}).status_code == 400
+
+
+def test_email_section_and_test_button(tmp_path, monkeypatch):
+    from greenmark_dmarc import alerts
+    from greenmark_dmarc.config import load_settings
+    from greenmark_dmarc.db import Database
+
+    s = load_settings({
+        "DATA_DIR": str(tmp_path), "ADMIN_PASSWORD": "pw", "SMTP_HOST": "mail.example.net",
+        "SMTP_FROM": "dmarc@example.net", "ALERT_TO": "support@example.org", "SUMMARY_TO": "info@example.org",
+    })
+    sent = []
+    monkeypatch.setattr(alerts, "send_email", lambda settings, to, subject, *a: sent.append((to, subject)))
+    app = create_app(s, Database(s.db_path))
+    app.config["TESTING"] = True
+    c = app.test_client()
+    _login(c)
+    page = c.get("/").get_data(as_text=True)
+    assert "Failure alerts to: support@example.org" in page
+    token = _csrf(c, "/")
+    r = c.post("/email/test", data={"csrf": token}, follow_redirects=True)
+    assert "Test email sent" in r.get_data(as_text=True)
+    assert sent == [(["info@example.org", "support@example.org"], "DMARC monitor test email")]
+    r = c.post("/email/summary", data={"csrf": token}, follow_redirects=True)
+    assert "Weekly summary sent" in r.get_data(as_text=True)

@@ -18,3 +18,9 @@ services:
       IMAP_FOLDER: INBOX
       ARCHIVE_FOLDER: Archive
       POLL_MINUTES: "30"
+      # Optional email. SMTP login defaults to the IMAP login.
+      SMTP_HOST: mail.example.net
+      SMTP_PORT: "587"
+      ALERT_TO: support@example.com
+      SUMMARY_TO: info@example.com
+      TZ: America/New_York

@@ -8,6 +8,7 @@ from functools import wraps
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
+from . import alerts
 from .config import Settings
 from .db import Database, load_clients
 from .ingest import import_report_bytes
@@ -90,6 +91,8 @@ def create_app(settings: Settings, db: Database, poller=None) -> Flask:
             status=db.get_status(),
             totals=db.totals(),
             settings=settings,
+            open_alerts=alerts.open_alerts(db),
+            schedule=alerts.describe_schedule(settings),
         )
 
     @app.get("/domain/<domain>")
@@ -133,6 +136,36 @@ def create_app(settings: Settings, db: Database, poller=None) -> Flask:
         if poller is not None:
             poller.poll_now()
             flash("Checking the mailbox now. Refresh in a minute to see new reports.")
+        return redirect(url_for("index"))
+
+    @app.post("/email/test")
+    @login_required
+    def email_test():
+        check_csrf()
+        to = sorted(set(settings.alert_to + settings.summary_to))
+        if not settings.email_enabled or not to:
+            flash("Email is not set up. Set SMTP_HOST, SMTP_FROM, ALERT_TO and SUMMARY_TO.")
+            return redirect(url_for("index"))
+        try:
+            alerts.send_email(
+                settings, to, "DMARC monitor test email",
+                "This is a test from the DMARC monitor. Alerts and the weekly summary will come from this address.",
+            )
+            flash(f"Test email sent to {', '.join(to)}.")
+        except Exception as exc:
+            flash(f"Could not send the test email: {type(exc).__name__}: {exc}")
+        return redirect(url_for("index"))
+
+    @app.post("/email/summary")
+    @login_required
+    def email_summary():
+        check_csrf()
+        if not settings.email_enabled or not settings.summary_to:
+            flash("Email is not set up. Set SMTP_HOST, SMTP_FROM and SUMMARY_TO.")
+        elif alerts.send_summary(db, settings):
+            flash(f"Weekly summary sent to {', '.join(settings.summary_to)}.")
+        else:
+            flash("Could not send the weekly summary: " + db.get_status().get("last_email_error", ""))
         return redirect(url_for("index"))
 
     @app.get("/healthz")
