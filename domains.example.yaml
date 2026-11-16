@@ -1,0 +1,9 @@
+# Optional. Copy to <data folder>/domains.yaml to show a client name next to each domain.
+# Domains listed here also appear on the dashboard before their first report arrives,
+# so you can spot a domain whose reports are not coming in.
+clients:
+  Example Client:
+    - example.com
+    - example.net
+  Another Client:
+    - example.org

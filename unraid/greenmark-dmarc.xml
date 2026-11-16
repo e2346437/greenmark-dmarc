@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>greenmark-dmarc</Name>
+  <Repository>ghcr.io/e2346437/greenmark-dmarc:latest</Repository>
+  <Registry>https://github.com/e2346437/greenmark-dmarc/pkgs/container/greenmark-dmarc</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/e2346437/greenmark-dmarc/issues</Support>
+  <Project>https://github.com/e2346437/greenmark-dmarc</Project>
+  <Overview>Self-hosted DMARC aggregate report monitor. Reads DMARC reports from an IMAP mailbox, stores them in SQLite and shows pass and fail results per domain.</Overview>
+  <Category>Network:Management Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <Config Name="Web UI port" Target="8080" Default="8080" Mode="tcp" Description="Dashboard port" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/greenmark-dmarc" Mode="rw" Description="Database, domains.yaml and import folder" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/greenmark-dmarc</Config>
+  <Config Name="Admin user" Target="ADMIN_USER" Default="admin" Description="Dashboard login name" Type="Variable" Display="always" Required="true" Mask="false">admin</Config>
+  <Config Name="Admin password" Target="ADMIN_PASSWORD" Default="" Description="Dashboard login password" Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="IMAP host" Target="IMAP_HOST" Default="" Description="Mail server that receives the DMARC reports" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="IMAP port" Target="IMAP_PORT" Default="993" Description="993 for IMAPS" Type="Variable" Display="always" Required="false" Mask="false">993</Config>
+  <Config Name="IMAP user" Target="IMAP_USER" Default="" Description="Mailbox login, for example dmarc@yourdomain" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="IMAP password" Target="IMAP_PASSWORD" Default="" Description="Mailbox password" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="IMAP folder" Target="IMAP_FOLDER" Default="INBOX" Description="Folder to read reports from" Type="Variable" Display="advanced" Required="false" Mask="false">INBOX</Config>
+  <Config Name="Archive folder" Target="ARCHIVE_FOLDER" Default="Archive" Description="Processed report emails are moved here" Type="Variable" Display="advanced" Required="false" Mask="false">Archive</Config>
+  <Config Name="Poll minutes" Target="POLL_MINUTES" Default="30" Description="How often to check the mailbox" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
+</Container>

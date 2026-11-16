@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block body %}
+{% if status.get('last_error') %}<div class="flash error"><strong>Last check failed.</strong> {{ status['last_error'] }}</div>{% endif %}
+<div class="panel">
+  <h1>Domains</h1>
+  {% include "_periods.html" %}
+</div>
+<div class="panel table-wrap">
+  {% if domains %}
+  <table>
+    <thead><tr>
+      <th>Client</th><th>Domain</th><th>Policy</th>
+      <th class="num">Messages</th><th class="num">DMARC pass</th><th class="num">Failed</th>
+      <th class="num">DKIM issues</th><th class="num">Reports</th><th>Latest report</th>
+    </tr></thead>
+    <tbody>
+    {% for d in domains %}
+      <tr class="{{ 'row-bad' if d.failed }}">
+        <td>{{ d.client or '' }}</td>
+        <td><a href="{{ url_for('domain', domain=d.domain, days=days) }}">{{ d.domain }}</a></td>
+        <td>{% if d.policy %}<span class="pill">{{ d.policy }}</span>{% endif %}</td>
+        <td class="num">{{ '{:,}'.format(d.messages or 0) }}</td>
+        <td class="num">{% if d.pass_rate is not none %}<span class="{{ 'good' if d.pass_rate == 100 else 'bad' }}">{{ '%.1f' % d.pass_rate }}%</span>{% else %}<span class="muted">no data</span>{% endif %}</td>
+        <td class="num {{ 'bad' if d.failed }}">{{ '{:,}'.format(d.failed or 0) }}</td>
+        <td class="num {{ 'warn' if d.dkim_issues }}" title="Passed DMARC through SPF only, because DKIM failed">{{ '{:,}'.format(d.dkim_issues or 0) }}</td>
+        <td class="num">{{ d.reports }}</td>
+        <td>{{ (d.last_report or '')[:10] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No reports in this period yet. They appear here after the next mailbox check, or upload some below.</p>
+  {% endif %}
+</div>
+<div class="panel">
+  <h2>Import and status</h2>
+  <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" style="margin-bottom:12px">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="file" name="reports" multiple accept=".xml,.gz,.zip"> <button>Upload reports</button>
+  </form>
+  <form class="inline" method="post" action="{{ url_for('poll') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button {{ 'disabled' if not settings.imap_enabled }}>Check mailbox now</button>
+  </form>
+  <p class="muted">
+    {% if settings.imap_enabled %}Mailbox {{ settings.imap_user }} on {{ settings.imap_host }}, checked every {{ settings.poll_minutes }} minutes.{% else %}No mailbox configured. Set IMAP_HOST, IMAP_USER and IMAP_PASSWORD.{% endif %}<br>
+    Last successful check: {{ status.get('last_poll_ok', 'never') }} UTC. {{ status.get('last_poll_message', '') }}<br>
+    Stored: {{ totals.reports }} reports for {{ totals.domains }} domains.
+  </p>
+</div>
+{% endblock %}

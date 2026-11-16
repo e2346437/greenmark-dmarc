@@ -23,15 +23,15 @@ It is meant for one operator watching many domains, not for end-client logins.
 
 ## Design
 
-- **Container:** Python slim image, parsedmarc, a small web app (FastAPI or Flask, with server-rendered pages), SQLite on a mounted volume (`/data`).
+- **Container:** Python slim image, parsedmarc, a small Flask app served by Waitress, with server-rendered pages, SQLite on a mounted volume (`/data`).
 - **Ingest loop:** every N minutes (default 30), connect over IMAP, call `get_dmarc_reports_from_mailbox`, and insert each record into SQLite. A unique key on `(org_name, report_id)` prevents duplicates if a report is seen twice.
 - **Tables:** `reports` (one row per report: org, report_id, domain, date range, published policy), `records` (one row per source IP and result, linked to a report), and `domains` (domain to client-name mapping, loaded from an optional `domains.yaml`).
 - **Dashboard:** list of domains with message counts and DMARC pass rate for the last 7 and 30 days; a per-domain view of sending sources, showing which pass, which fail, and why (SPF, DKIM or alignment); highlighting of any source with failures.
 - **Auth:** one admin username and password from environment variables, with a session cookie.
 - **Config:** environment variables only (`IMAP_HOST`, `IMAP_USER`, `IMAP_PASSWORD`, `IMAP_FOLDER`, `ARCHIVE_FOLDER`, `POLL_MINUTES`, `ADMIN_PASSWORD`, `DATA_DIR`), which suits Unraid templates.
-- **Offline by default:** reverse DNS lookups are on but GeoIP is optional, so the container works without extra downloads.
+- **Reverse DNS:** on by default so sources show a hostname. Set `OFFLINE=true` to skip lookups.
 
 ## Deployment notes
 
 - When client domains send reports to a mailbox on another domain, that domain must publish an authorization record, for example `clientdomain.com._report._dmarc.reportsdomain.net TXT "v=DMARC1"`, or a wildcard `*._report._dmarc.reportsdomain.net`. Without it, some senders will not deliver the reports.
-- An Unraid template and a docker-compose example will be added with the first build.
+- An Unraid template is in `unraid/` and a compose example is in `docker-compose.example.yml`.

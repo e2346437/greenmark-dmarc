@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ domain }} · DMARC monitor{% endblock %}
+{% block body %}
+<div class="panel">
+  <p><a href="{{ url_for('index', days=days) }}">All domains</a></p>
+  <h1>{{ domain }}</h1>
+  {% if client %}<p class="muted">{{ client }}</p>{% endif %}
+  {% include "_periods.html" %}
+</div>
+<div class="panel table-wrap">
+  <h2>Sending sources</h2>
+  {% if sources %}
+  <table>
+    <thead><tr>
+      <th>Source IP</th><th>Name / reverse DNS</th><th class="num">Messages</th>
+      <th class="num">DMARC fail</th><th class="num">SPF not aligned</th><th class="num">DKIM not aligned</th>
+      <th>Disposition</th><th>Envelope from</th><th>DKIM domains</th><th>Reported by</th>
+    </tr></thead>
+    <tbody>
+    {% for s in sources %}
+      <tr class="{{ 'row-bad' if s.failed }}">
+        <td>{{ s.source_ip }}</td>
+        <td>{{ s.source_name or s.reverse_dns or s.base_domain or '' }}{% if s.source_name and s.reverse_dns %}<br><span class="muted">{{ s.reverse_dns }}</span>{% endif %}</td>
+        <td class="num">{{ '{:,}'.format(s.messages) }}</td>
+        <td class="num {{ 'bad' if s.failed else 'good' }}">{{ '{:,}'.format(s.failed) }}</td>
+        <td class="num {{ 'warn' if s.spf_fail }}">{{ '{:,}'.format(s.spf_fail) }}</td>
+        <td class="num {{ 'warn' if s.dkim_fail }}">{{ '{:,}'.format(s.dkim_fail) }}</td>
+        <td>{{ s.dispositions or '' }}</td>
+        <td>{{ s.envelope_from or '' }}</td>
+        <td>{{ s.dkim_domains or '' }}</td>
+        <td>{{ s.reporters or '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">No reports for this domain in this period.</p>{% endif %}
+</div>
+<div class="panel table-wrap">
+  <h2>Reports</h2>
+  <table>
+    <thead><tr><th>Period start</th><th>Reporter</th><th>Policy</th><th class="num">Messages</th><th class="num">Failed</th><th>Report ID</th></tr></thead>
+    <tbody>
+    {% for r in reports %}
+      <tr class="{{ 'row-bad' if r.failed }}">
+        <td>{{ r.begin_date[:10] }}</td><td>{{ r.org_name }}</td><td>{{ r.p or '' }}{% if r.pct and r.pct != '100' %} ({{ r.pct }}%){% endif %}</td>
+        <td class="num">{{ r.messages }}</td><td class="num">{{ r.failed }}</td><td class="muted">{{ r.report_id }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
