@@ -56,6 +56,7 @@ Copy `unraid/greenmark-dmarc.xml` to `/boot/config/plugins/dockerMan/templates-u
 | `ALERT_STALE_HOURS` | `48` | Alert when no new report has arrived for this long |
 | `ALERT_POLL_FAILURES` | `2` | Alert after this many failed mailbox checks in a row |
 | `ALERT_REPEAT_DAYS` | `7` | Re-send an alert if the problem is still there after this many days. `0` turns reminders off. |
+| `PUID` / `PGID` | `99` / `100` | User and group the app runs as. The data folder is given to this user at startup, so a folder created by root works. |
 | `OWN_CLIENT_NAME` | `Greenmark IT` | Client name used in the subject of alerts about the monitor itself |
 
 ### Email alerts and weekly summary (optional)
