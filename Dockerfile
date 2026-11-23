@@ -11,12 +11,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY greenmark_dmarc ./greenmark_dmarc
 
-RUN useradd --uid 99 --gid 100 --no-create-home --shell /usr/sbin/nologin app 2>/dev/null || true \
- && mkdir -p /data && chown 99:100 /data
-USER 99:100
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN mkdir -p /data && chown 99:100 /data
 
 VOLUME ["/data"]
 EXPOSE 8080
 HEALTHCHECK --interval=60s --timeout=5s CMD python -c "import urllib.request,os;urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','8080')+'/healthz')" || exit 1
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["python", "-m", "greenmark_dmarc"]
